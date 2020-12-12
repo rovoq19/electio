@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:insert="blocks/head :: head" />
+<body>
+	<div th:replace="blocks/navbar :: navbar" />
+
+	<div class="container mt-5">
+		<div sec:authorize="!isAuthenticated()">
+			<h5>Привет, гость!</h5>
+		</div>
+		<div sec:authorize="isAuthenticated()">
+			<h5>Привет, <b sec:authentication="name"/>!</h5>
+		</div>
+
+		<div>Это система онлайн голосования Electio.</div>
+	</div>
+
+	<div th:replace="blocks/jsImport :: jsImport" />
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:insert="blocks/head :: head"/>
+<body>
+	<div th:replace="blocks/navbar :: navbar"/>
+
+	<div class="container mt-5">
+		<h1>Добавление нового пользователя</h1>
+		<div th:if="${message}">
+			<p th:text="${message}"/>
+		</div>
+		<div th:insert="~{blocks/loginForm :: loginForm('/registration', true)}"/>
+	</div>
+	
+	<div th:replace="blocks/jsImport :: jsImport"/>
+</body>
+</html>

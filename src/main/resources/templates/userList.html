@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:insert="blocks/head :: head" />
+<body>
+	<div th:replace="blocks/navbar :: navbar" />
+
+	<div class="container mt-5">
+		<h1>Список пользователей</h1>
+		<table>
+			<tr>
+				<th>Имя</th>
+				<th>Роль</th>
+				<th></th>
+			</tr>
+			<tr th:each="user : ${users}">
+				<td th:text="${user.username}" />
+				<td th:text="${#strings.setJoin(user.roles, ',')}" />
+				<td><a th:href="'/user/'+${user.id}">Редактировать</a></td>
+			</tr>
+		</table>
+	</div>
+
+	<div th:replace="blocks/jsImport :: jsImport" />
+</body>
+</html>

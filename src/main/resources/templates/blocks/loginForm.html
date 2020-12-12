@@ -1,0 +1,49 @@
+<form th:fragment="loginForm (path, isRegisterForm)" th:action="${path}" method="post"
+	  xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Имя пользователя:</label>
+		<div class="col-sm-6">
+			<input type="text" name="username" th:value="${user} ? ${user.username}" th:class="form-control"
+				th:classappend="${!#strings.isEmpty(usernameError)} ? is-invalid" placeholder="Имя пользователя" />
+			<div th:text="${!#strings.isEmpty(usernameError)} ? ${usernameError}" class="invalid-feedback" />
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Пароль:</label>
+		<div class="col-sm-6">
+			<input type="password" name="password" th:class="form-control" th:classappend="${!#strings.isEmpty(passwordError)} ? is-invalid"
+				placeholder="Пароль" />
+			<div th:text="${!#strings.isEmpty(passwordError)} ? ${passwordError}" class="invalid-feedback" />
+		</div>
+	</div>
+	<div th:if="${isRegisterForm}">
+		<div class="form-group row">
+			<label class="col-sm-2 col-form-label">Подтверждение пароля:</label>
+			<div class="col-sm-6">
+				<input type="password" name="password2" th:class="form-control" th:classappend="${!#strings.isEmpty(password2Error)} ? is-invalid"
+					placeholder="Подтверждение пароля" />
+				<div th:text="${!#strings.isEmpty(password2Error)} ? ${password2Error}" class="invalid-feedback" />
+			</div>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-2 col-form-label">Email:</label>
+			<div class="col-sm-6">
+				<input type="email" name="email" th:value="${user} ? ${user.email}" th:class="form-control"
+					th:classappend="${!#strings.isEmpty(emailError)} ? is-invalid" placeholder="some@some.com" />
+				<div th:text="${!#strings.isEmpty(emailError)} ? ${emailError}" class="invalid-feedback" />
+			</div>
+		</div>
+		<div class="col-sm-6">
+			<div class="g-recaptcha" data-sitekey="6LfVL8IZAAAAAHCo5qRMyeRfZAEvzW97tEOX2n1J"></div>
+			<div class="alert alert-danger" th:if="${captchaError}" th:text="${captchaError}" role="alert" />
+		</div>
+	</div><br>
+	<a th:if="${!isRegisterForm}" href="/registration">Регистрация</a>
+	<button class="btn btn-primary" th:if="${!isRegisterForm}" type="submit">Войти</button>
+	<button class="btn btn-primary" th:if="${isRegisterForm}" type="submit">Зарегистрироваться</button>
+</form>
+
+<form th:fragment="logoutForm" th:action="@{/logout}" method="post">
+	<button type="submit" class="btn btn-primary" sec:authorize="isAuthenticated()">Выйти</button>
+	<button type="submit" class="btn btn-primary" sec:authorize="!isAuthenticated()">Войти</button>
+</form>

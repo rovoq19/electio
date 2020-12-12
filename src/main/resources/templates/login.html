@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:insert="blocks/head :: head" />
+<body>
+	<div th:replace="blocks/navbar :: navbar" />
+
+	<div class="container mt-5">
+		<div class="alert alert-danger" th:if="${param.error}" role="alert">Неверное имя пользователя или пароль</div>
+		<div th:class="'alert alert-' + ${messageType}" th:if="${message}" th:text="${message}" role="alert" />
+		<div th:insert="~{blocks/loginForm :: loginForm('/login', false)}" />
+	</div>
+
+	<div th:replace="blocks/jsImport :: jsImport" />
+</body>
+</html>

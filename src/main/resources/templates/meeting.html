@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:insert="blocks/head :: head" />
+<body>
+<div th:replace="blocks/navbar :: navbar" />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title" th:text="${meeting.name}"/>
+        <p class="card-text" th:if="${meeting.locked}"><span class="redtext">Голосование закрыто</span></p>
+        <p class="card-text" th:if="!${meeting.locked}"><span class="greentext">Голосование открыто</span></p>
+        <p class="card-text" th:text="'Создатель: ' + ${meeting.creator}"/>
+        <p class="card-text" th:text="'Дата создания: ' + ${meeting.creationDate}"/>
+        <h6 class="card-subtitle mb-2 text-muted">Описание</h6>
+
+        <p class="card-text" th:text="${meeting.description}"/>
+        <a class="btn btn-primary mb-2" th:if="${user.username} == ${meeting.creator}" role="button" th:href="${meeting.id} + '/edit'">Изменить собрание</a>
+        <a class="btn btn-primary mb-2" th:if="${user.username} == ${meeting.creator}" role="button" th:href="${meeting.id} + '/createVoting'">Создать голосование</a>
+    </div>
+</div>
+<div class="container mt-3">
+    <h5 class="card-subtitle text-muted">Голосования</h5>
+    <div class="card mt-3" th:each="voting : ${votings}">
+        <div class="card-header" style="display: flex; justify-content: space-between">
+            <h5 th:text="${voting.name}"/>
+        </div>
+        <div class="card-body">
+            <p class="card-text" th:text="${voting.description}"/>
+            <a th:href="'/meeting/'+${meeting.id}+'/'+${voting.id}" class="btn btn-primary">Открыть</a>
+        </div>
+    </div>
+</div>
+<div th:replace="blocks/jsImport :: jsImport" />
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:insert="blocks/head :: head" />
+<body>
+<div th:replace="blocks/navbar :: navbar" />
+
+<div class="container mt-5">
+    <h1>Список собраний</h1>
+
+    <div class="card mt-5" th:each="meeting : ${meetings}">
+        <div class="card-header" style="display: flex; justify-content: space-between">
+            <h5 th:text="${meeting.name}"/>
+            <i th:text="${meeting.creator}"/>
+            <i th:text="${meeting.creationDate}"/>
+        </div>
+        <div class="card-body">
+            <p class="card-text" th:if="${meeting.locked}"><span class="redtext">Голосование закрыто</span></p>
+            <p class="card-text" th:if="!${meeting.locked}"><span class="greentext">Голосование открыто</span></p>
+            <p class="card-text" th:text="${meeting.description}"/>
+            <a th:href="'/meeting/'+${meeting.id}" class="btn btn-primary">Открыть</a>
+        </div>
+    </div>
+</div>
+
+<div th:replace="blocks/jsImport :: jsImport" />
+</body>
+</html>

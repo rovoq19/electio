@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:insert="blocks/head :: head" />
+<body>
+<div th:replace="blocks/navbar :: navbar" />
+
+<div class="container mt-5">
+    <form method="post">
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Название:</label>
+            <div class="col-sm-6">
+                <input type="text" name="name" class="form-control" placeholder="Название собрания" th:value="${meeting.name}"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Описание:</label>
+            <div class="col-sm-6">
+                <input type="text" name="description" class="form-control" placeholder="Краткое описание собрания" th:value="${meeting.description}"/>
+            </div>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="lock" value="open" id="flexRadioDefault1">
+            <label class="form-check-label" for="flexRadioDefault1">
+                Открытое голосование
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="lock" value="lock" id="flexRadioDefault2" checked>
+            <label class="form-check-label" for="flexRadioDefault2">
+                Закрытое голосование
+            </label>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Применить</button>
+    </form>
+</div>
+
+<div th:replace="blocks/jsImport :: jsImport" />
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:insert="blocks/head :: head" />
+<body>
+<div th:replace="blocks/navbar :: navbar" />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-subtitle mb-2 text-muted" th:text="${meeting.name}"/>
+        <h5 class="card-title" th:text="${voting.name}"/>
+
+        <h6 class="card-subtitle mb-2 text-muted">Описание</h6>
+        <p class="card-text" th:text="${voting.description}"/>
+        <a class="btn btn-primary mt-2" th:if="${user.username} == ${meeting.creator}" role="button" th:href="${voting.id} + '/createAnswer'">Добавить вариант ответа</a>
+
+        <div class="container mt-3">
+            <ul class="list-group">
+                <div th:each="answer : ${answers}">
+                    <div class="list-group-item" style="display: flex; justify-content: space-between">
+                        <a th:text="${answer.name}" th:href="${voting.id} + '/' + ${answer.id} + '/vote'"/>
+                        <p th:text="${answer.voteSubscribers.size()}"/>
+                    </div>
+                </div>
+            </ul>
+        </div>
+    </div>
+</div>
+<div th:replace="blocks/jsImport :: jsImport" />
+</body>
+</html>

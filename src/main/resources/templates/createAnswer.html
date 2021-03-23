@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:insert="blocks/head :: head" />
+<body>
+<div th:replace="blocks/navbar :: navbar" />
+
+<div class="container mt-5">
+    <form method="post">
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Название:</label>
+            <div class="col-sm-6">
+                <input type="text" name="name" class="form-control" placeholder="Название варианта ответа" />
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Добавить</button>
+    </form>
+</div>
+
+<div th:replace="blocks/jsImport :: jsImport" />
+</body>
+</html>

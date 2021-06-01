@@ -3,7 +3,6 @@ package com.rovoq.electio.domain;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,6 +34,8 @@ public class User implements UserDetails, Serializable {
     @NotBlank(message = "Email cannot be empty")
     private String email;
     private String activation;
+    @JoinColumn(name = "key_alias")
+    private String keyAlias;
 
     // Добавить элемент в коллекцию. fetch eager при загрузке сразу подгружает
     // элемент, lazy - при обращении
@@ -57,6 +58,19 @@ public class User implements UserDetails, Serializable {
             generator = ObjectIdGenerators.PropertyGenerator.class
     )
     private Set<Meeting> subscriptions = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "group_subscriptions",
+            joinColumns = @JoinColumn(name = "subscriber_id"),
+            inverseJoinColumns = @JoinColumn(name = "channel_id")
+    )
+    @JsonIdentityReference
+    @JsonIdentityInfo(
+            property = "id",
+            generator = ObjectIdGenerators.PropertyGenerator.class
+    )
+    private Set<Group> groupSubscriptions = new HashSet<>();
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getRoles();

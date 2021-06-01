@@ -3,6 +3,7 @@ package com.rovoq.electio.controller;
 import com.rovoq.electio.domain.User;
 import com.rovoq.electio.domain.dto.CaptchaResponseDto;
 import com.rovoq.electio.service.UserService;
+import com.rovoq.electio.service.signature.SignatureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -38,9 +39,16 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration")
-    public String addUser(@RequestParam("password2") String passwordConfirm, @RequestParam("g-recaptcha-response") String captchaResponse,@Valid User user, BindingResult bindingResult, Model model) {
+    public String addUser(@RequestParam("password2") String passwordConfirm,
+                          @RequestParam("g-recaptcha-response") String captchaResponse,
+                          @Valid User user,
+                          BindingResult bindingResult,
+                          Model model) throws Exception {
         String url = String.format(CAPTCHA_URL, secret, captchaResponse);
         CaptchaResponseDto response = restTemplate.postForObject(url, Collections.emptyList(), CaptchaResponseDto.class);
+
+        var signatureService = new SignatureService("C:\\Users\\aleks\\IdeaProjects\\electio\\ca.p12", "1234", "Test CA");
+
 
         if (!response.isSuccess()) {
             model.addAttribute("captchaError", "Fill captcha");

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:insert="blocks/head :: head" />
+<body>
+<div th:replace="blocks/navbar :: navbar" />
+
+<div class="container mt-5">
+    <i th:text="'Протокол №' + ${ProtocolNum}" />
+    <div>
+        <p th:text="${Voting.name}" align="center"/>
+        <p th:text="${Voting.stop}" align="center"/>
+        <p align="center">ПРОТОКОЛ</p>
+        <p th:text="${Meeting.name}" align="center"/>
+        <p align="center">Избирательная комиссия установила:</p>
+    </div>
+    <div class="container mt-2" align="center">
+        <p>Число избирателей на момент окончания голосования: <span th:text="${NumVoters}" /></p>
+        <p>Варианты ответов, внесенных в бюллетень | Число голосов избирателей</p>
+        <div th:each="Vote : ${Votes}">
+            <div>
+                <b th:text="${Vote.key} + ' | ' + ${Vote.value}" />
+            </div>
+        </div>
+    </div>
+    <div class="container mt-2" align="center">
+        <p>Председатель комиссии: </p>
+        <p th:text="${Chairperson.username}" />
+    </div>
+</div>
+<div th:replace="blocks/jsImport :: jsImport" />
+</body>
+</html>

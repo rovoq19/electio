@@ -1,13 +1,11 @@
 package com.rovoq.electio.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,37 +13,25 @@ import java.util.Set;
 @Table(name = "voting")
 @Getter
 @Setter
-@ToString(includeFieldNames = false, exclude = {"id", "meetingSubscriptions"})
 public class Voting {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
     private String description;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Timestamp start;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Timestamp stop;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "creator_id")
+    private User creator;
+    private String creationDate;
 
-    @ManyToMany
-    @JoinTable(
-            name = "voting_subscriptions",
-            joinColumns = @JoinColumn(name = "subscriber_id"),
-            inverseJoinColumns = @JoinColumn(name = "channel_id")
-    )
-    @JsonIdentityReference
-    @JsonIdentityInfo(
-            property = "id",
-            generator = ObjectIdGenerators.PropertyGenerator.class
-    )
-    private Set<Meeting> meetingSubscriptions = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "answer_subscriptions",
-            joinColumns = @JoinColumn(name = "channel_id"),
-            inverseJoinColumns = @JoinColumn(name = "subscriber_id")
-    )
-    @JsonIdentityReference
-    @JsonIdentityInfo(
-            property = "id",
-            generator = ObjectIdGenerators.PropertyGenerator.class
-    )
-    private Set<Answer> answerSubscribers = new HashSet<>();
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "meeting_id")
+    private Meeting meeting;
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "voting_id")
+    private Set<Answer> answer = new HashSet<>();
 }

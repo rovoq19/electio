@@ -18,6 +18,18 @@
                 <input type="text" name="description" class="form-control" placeholder="Краткое описание голосования" />
             </div>
         </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Начало:</label>
+            <div class="col-sm-6">
+                <input type="text" name="start" class="form-control" placeholder="yyyy-MM-dd HH:mm:ss" th:value="${start}"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Конец:</label>
+            <div class="col-sm-6">
+                <input type="text" name="stop" class="form-control" placeholder="yyyy-MM-dd HH:mm:ss" th:value="${stop}"/>
+            </div>
+        </div>
         <button class="btn btn-primary" type="submit">Создать</button>
     </form>
 </div>

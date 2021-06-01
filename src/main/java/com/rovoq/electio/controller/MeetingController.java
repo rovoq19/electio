@@ -1,20 +1,20 @@
 package com.rovoq.electio.controller;
 
-import com.rovoq.electio.domain.*;
+import com.rovoq.electio.domain.Answer;
+import com.rovoq.electio.domain.Meeting;
+import com.rovoq.electio.domain.User;
+import com.rovoq.electio.domain.Voting;
 import com.rovoq.electio.service.MeetingService;
+import com.rovoq.electio.service.UserService;
+import org.dom4j.rule.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.*;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.security.*;
-import java.util.List;
-import java.util.Set;
+import java.sql.Timestamp;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/meeting")
@@ -22,6 +22,9 @@ public class MeetingController {
 
     @Autowired
     MeetingService meetingService;
+
+    @Autowired
+    UserService userService;
 
     @GetMapping("create")
     public String getMeetingCreator() {
@@ -42,11 +45,7 @@ public class MeetingController {
             @RequestParam String lock) {
 
         boolean locked;
-        if (lock.equals("open")){
-            locked = false;
-        } else {
-            locked = true;
-        }
+        locked = !lock.equals("open");
 
         meetingService.createMeeting(user, name, description, locked);
 
@@ -57,8 +56,7 @@ public class MeetingController {
     public String getMeeting(@AuthenticationPrincipal User user, @PathVariable("meetingId") Meeting meeting, Model model) {
         model.addAttribute("meeting",meeting);
         model.addAttribute("user", user);
-        model.addAttribute("votings", meeting.getVotingSubscribers());
-//        model.addAttribute("votings", meetingService.findAllVoting());
+        model.addAttribute("votings", meetingService.findByMeeting(meeting));
 
         return "meeting";
     }
@@ -78,11 +76,7 @@ public class MeetingController {
             @PathVariable("meetingId") Meeting meeting) {
 
         boolean locked;
-        if (lock.equals("open")){
-            locked = false;
-        } else {
-            locked = true;
-        }
+        locked = !lock.equals("open");
 
         meetingService.edit(user, meeting, name, description, locked);
 
@@ -96,11 +90,13 @@ public class MeetingController {
 
     @PostMapping("{meetingId}/createVoting")
     public String createVoting(
+            @AuthenticationPrincipal User user,
             @RequestParam String name,
             @RequestParam String description,
-            @PathVariable("meetingId") Meeting meeting) {
-
-        meetingService.createVoting(name, description, meeting);
+            @PathVariable("meetingId") Meeting meeting,
+            @RequestParam Timestamp start,
+            @RequestParam Timestamp stop) {
+        meetingService.createVoting(user, name, description, meeting, start, stop);
 
         return "redirect:/meeting/" + meeting.getId();
     }
@@ -111,12 +107,21 @@ public class MeetingController {
     }
 
     @PostMapping("{meetingId}/{votingId}/createAnswer")
-    public String createAnswer(
+    public String createAnswer(@AuthenticationPrincipal User user,
             @PathVariable("meetingId") Meeting meeting,
             @PathVariable("votingId") Voting voting,
-            @RequestParam String name) {
+            @RequestParam String name,
+            Model model) {
 
-        meetingService.createAnswer(name, meeting, voting);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        if(timestamp.getTime() >= voting.getStart().getTime() & timestamp.getTime() <= voting.getStop().getTime()
+                || voting.getCreator().getId().equals(user.getId())){
+            meetingService.createAnswer(name, meeting, voting);
+        }else{
+            model.addAttribute("res","Голосование еще не началось или уже закончилось");
+            return "timeOutVoting";
+        }
 
         return "redirect:/meeting/" + meeting.getId() + "/" + voting.getId();
     }
@@ -126,13 +131,12 @@ public class MeetingController {
             @AuthenticationPrincipal User user,
             @PathVariable("meetingId") Meeting meeting,
             @PathVariable("votingId") Voting voting,
-            Model model){
+            Model model) throws Exception {
 
         model.addAttribute("user", user);
         model.addAttribute("meeting", meeting);
         model.addAttribute("voting", voting);
-        model.addAttribute("answers", voting.getAnswerSubscribers());
-
+        model.addAttribute("answers", meetingService.getAnswers(voting));
         return "voting";
     }
 
@@ -141,59 +145,71 @@ public class MeetingController {
             @AuthenticationPrincipal User user,
             @PathVariable("meetingId") Meeting meeting,
             @PathVariable("votingId") Voting voting,
-            @PathVariable("answerId") Answer answer) {
+            @PathVariable("answerId") Answer answer,
+            Model model) throws Exception {
 
-        meetingService.vote(user, meeting, voting, answer);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        if(timestamp.getTime() >= voting.getStart().getTime() & timestamp.getTime() <= voting.getStop().getTime()
+                || voting.getCreator().getId().equals(user.getId())){
+            meetingService.vote(user, meeting, voting, answer);
+        }else{
+            model.addAttribute("res","Голосование еще не началось или уже закончилось");
+            return "timeOutVoting";
+        }
 
         return "redirect:/meeting/" + meeting.getId() + "/" + voting.getId();
     }
 
+    @GetMapping("{meetingId}/{votingId}/createResult")
+    public String createResult(@AuthenticationPrincipal User user,
+                           @PathVariable("meetingId") Meeting meeting,
+                           @PathVariable("votingId") Voting voting,
+                           Model model) throws Exception {
 
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-
-
-
-
-
-
-
-
-    @GetMapping("{meetingId}/{votingId}/test")
-    public String getVotingTest (
-            @PathVariable("meetingId") Meeting meeting,
-            @PathVariable("votingId") Voting voting) throws Exception {
-
-        // Generate keys
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        SecureRandom random = SecureRandom.getInstanceStrong();
-        generator.initialize(2048, random);
-        KeyPair keyPair = generator.generateKeyPair();
-
-        // Digital Signature
-        Signature dsa = Signature.getInstance("SHA256withRSA");
-        dsa.initSign(keyPair.getPrivate());
-
-        // Update and sign the data
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
-        byte[] data = cipher.doFinal(voting.toString().getBytes());
-        dsa.update(data);
-        byte[] signature = dsa.sign();
-
-        // Verify signature
-        dsa.initVerify(keyPair.getPublic());
-        dsa.update(data);
-        boolean verifies = dsa.verify(signature);
-        System.out.println("Signature is ok: " + verifies);
-
-        // Decrypt if signature is correct
-        if (verifies) {
-            cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
-            byte[] result = cipher.doFinal(data);
-            System.out.println(new String(result));
-            System.out.println(new String(result).equals(voting.toString()));
+        if(timestamp.getTime() > voting.getStop().getTime()
+                || voting.getCreator().getId().equals(user.getId())){
+            meetingService.createResult(user, meeting, voting);
+        }else{
+            model.addAttribute("res","Голосование еще не закончилось");
+            return "timeOutVoting";
         }
 
-        return "voting";
+//        return "redirect:/meeting/" + meeting.getId() + "/" + voting.getId();
+        return "redirect:/meeting/" + meeting.getId() + "/" + voting.getId() + "/" + "getResult";
+    }
+
+    @GetMapping("{meetingId}/{votingId}/getResult")
+    public String getResult(@AuthenticationPrincipal User user,
+                               @PathVariable("meetingId") Meeting meeting,
+                               @PathVariable("votingId") Voting voting,
+                               Model model) throws Exception {
+
+        var result = meetingService.getResult(voting);
+        var resultVoteMap = meetingService.getVoteMap();
+
+//        for (Map.Entry<String, String> entry : result.entrySet()) {
+//            System.out.println(entry.getKey() + " " + entry.getValue());
+//        }
+//        for (Map.Entry<String, String> entry : resultVoteMap.entrySet()) {
+//            System.out.println(entry.getKey() + " " + entry.getValue());
+//        }
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        if(timestamp.getTime() > voting.getStop().getTime()){
+            model.addAttribute("ProtocolNum", result.get("ProtocolNum"));
+            model.addAttribute("Meeting", meeting);
+            model.addAttribute("Voting", meetingService.findVotingById(Long.valueOf(result.get("Voting"))).get());
+            model.addAttribute("NumVoters", result.get("NumVoters"));
+            model.addAttribute("Chairperson", userService.findUserById(Long.valueOf(result.get("Chairperson"))).get());
+            model.addAttribute("Votes", resultVoteMap);
+            return "result";
+        }else{
+            model.addAttribute("res","Голосование еще не закончилось");
+            return "timeOutVoting";
+        }
     }
 }

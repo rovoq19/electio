@@ -33,6 +33,7 @@
 				<div th:text="${!#strings.isEmpty(emailError)} ? ${emailError}" class="invalid-feedback" />
 			</div>
 		</div>
+
 		<div class="col-sm-6">
 			<div class="g-recaptcha" data-sitekey="6LfVL8IZAAAAAHCo5qRMyeRfZAEvzW97tEOX2n1J"></div>
 			<div class="alert alert-danger" th:if="${captchaError}" th:text="${captchaError}" role="alert" />

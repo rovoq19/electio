@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:insert="blocks/head :: head" />
+<body>
+<div th:replace="blocks/navbar :: navbar" />
+
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title" th:text="${res}"/>
+  </div>
+</div>
+
+<div th:replace="blocks/jsImport :: jsImport" />
+</body>
+</html>

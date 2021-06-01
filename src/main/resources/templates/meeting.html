@@ -9,13 +9,13 @@
         <h5 class="card-title" th:text="${meeting.name}"/>
         <p class="card-text" th:if="${meeting.locked}"><span class="redtext">Голосование закрыто</span></p>
         <p class="card-text" th:if="!${meeting.locked}"><span class="greentext">Голосование открыто</span></p>
-        <p class="card-text" th:text="'Создатель: ' + ${meeting.creator}"/>
+        <p class="card-text" th:text="'Создатель: ' + ${meeting.creator.username}"/>
         <p class="card-text" th:text="'Дата создания: ' + ${meeting.creationDate}"/>
         <h6 class="card-subtitle mb-2 text-muted">Описание</h6>
 
         <p class="card-text" th:text="${meeting.description}"/>
-        <a class="btn btn-primary mb-2" th:if="${user.username} == ${meeting.creator}" role="button" th:href="${meeting.id} + '/edit'">Изменить собрание</a>
-        <a class="btn btn-primary mb-2" th:if="${user.username} == ${meeting.creator}" role="button" th:href="${meeting.id} + '/createVoting'">Создать голосование</a>
+        <a class="btn btn-primary mb-2" th:if="${user.id} == ${meeting.creator.id}" role="button" th:href="${meeting.id} + '/edit'">Изменить собрание</a>
+        <a class="btn btn-primary mb-2" th:if="${user.id} == ${meeting.creator.id}" role="button" th:href="${meeting.id} + '/createVoting'">Создать голосование</a>
     </div>
 </div>
 <div class="container mt-3">
@@ -23,9 +23,13 @@
     <div class="card mt-3" th:each="voting : ${votings}">
         <div class="card-header" style="display: flex; justify-content: space-between">
             <h5 th:text="${voting.name}"/>
+            <i th:text="${voting.creator.username}"/>
+            <i th:text="${voting.creationDate}"/>
         </div>
         <div class="card-body">
             <p class="card-text" th:text="${voting.description}"/>
+            <p class="card-text"><i th:text="'Время начала: ' + ${voting.start}"/></p>
+            <p class="card-text"><i th:text="'Время окончания: ' + ${voting.stop}"/></p>
             <a th:href="'/meeting/'+${meeting.id}+'/'+${voting.id}" class="btn btn-primary">Открыть</a>
         </div>
     </div>

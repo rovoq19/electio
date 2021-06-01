@@ -3,6 +3,7 @@ package com.rovoq.electio.service;
 import com.rovoq.electio.domain.Role;
 import com.rovoq.electio.domain.User;
 import com.rovoq.electio.repos.UserRepo;
+import com.rovoq.electio.service.signature.SignatureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,7 +41,7 @@ public class UserService implements UserDetailsService {
 
     }
 
-    public boolean addUser(User user) {
+    public boolean addUser(User user) throws Exception {
         User userFromDb = userRepo.findByUsername(user.getUsername());
 
         if (userFromDb != null) { // Пользователь найден в БД и не будет добавлен
@@ -51,10 +52,14 @@ public class UserService implements UserDetailsService {
         user.setRoles(Collections.singleton(Role.USER));
         user.setActivation(UUID.randomUUID().toString());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setKeyAlias(UUID.randomUUID().toString());
 
         userRepo.save(user);
 
         sendMessage(user);
+
+        var signatureService = new SignatureService("C:\\Users\\aleks\\IdeaProjects\\electio\\ca.p12", "1234", "Test CA");
+        signatureService.createCertificate(user.getKeyAlias(), user.getUsername(), user.getEmail(), 30, user.getPassword());
 
         return true;// Пользователь успешно добавлен
     }
@@ -85,6 +90,10 @@ public class UserService implements UserDetailsService {
 
     public List<User> findAll() {
         return userRepo.findAll();
+    }
+
+    public Optional<User> findUserById(Long id){
+        return userRepo.findById(id);
     }
 
     public void saveUser(User user, String username, Map<String, String> form) {

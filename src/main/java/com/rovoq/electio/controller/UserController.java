@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @GetMapping("profile")
-    public String getProfile(Model model, @AuthenticationPrincipal User user) {
+    public String getProfile(Model model, @AuthenticationPrincipal User user) throws Exception {
         model.addAttribute("username", user.getUsername());
         model.addAttribute("email", user.getEmail());
 
@@ -60,4 +60,20 @@ public class UserController {
         return "redirect:/user/profile";
     }
 
+    @GetMapping("createGroup")
+    public String getCreationGroup(@AuthenticationPrincipal User user) {
+        if (user.getRoles().contains(Role.ADMIN)){
+            return "createGroup";
+        } else {
+            return "redirect:/";
+        }
+    }
+
+    @PostMapping("createGroup")
+    public String createGroup(@AuthenticationPrincipal User user, @RequestParam String name) {
+        if (user.getRoles().contains(Role.ADMIN)){
+            //        userService.updateProfile(user, password, email);
+        }
+        return "redirect:/";
+    }
 }

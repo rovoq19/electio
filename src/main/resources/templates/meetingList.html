@@ -10,7 +10,7 @@
     <div class="card mt-5" th:each="meeting : ${meetings}">
         <div class="card-header" style="display: flex; justify-content: space-between">
             <h5 th:text="${meeting.name}"/>
-            <i th:text="${meeting.creator}"/>
+            <i th:text="${meeting.creator.username}"/>
             <i th:text="${meeting.creationDate}"/>
         </div>
         <div class="card-body">
